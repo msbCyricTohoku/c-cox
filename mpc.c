@@ -19,26 +19,27 @@ typedef struct {
 } DATA;
 
 
-double Z[N][P] //data matrix covars are const. at the moment
+double Z[N][CONVO] //data matrix covars are const. at the moment
+
+void ccox(DATA *dat, DATA_RES *res){
+  int covN = COVNO; //number of covrs
+  
+}
 
 int main(){
 
-  double T1[] = {};
-  double T2[] = {};
-  double T3[] = {};
+double T1[] = {};
+double T2[] = {};
+double T3[] = {};
 
-  int D1[] = {};
-  int D2[] = {};
-  int D3[] = {};
+int D1[] = {};
+int D2[] = {};
+int D3[] = {};
 
-  int TREAT[] ={};
-
-  
-
-  
+int TREAT[] ={};
 
 
-  DATA S1, S2, S3; 
+ DATA S1, S2, S3; 
 
 
   return 0;
