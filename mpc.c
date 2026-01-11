@@ -23,9 +23,15 @@ int main(){
   double T2[] = {};
   double T3[] = {};
 
-  double D1[] = {};
-  double D2[] = {};
-  double D3[] = {};
+  int D1[] = {};
+  int D2[] = {};
+  int D3[] = {};
+
+  int TREAT[] ={};
+
+  
+
+  
 
 
   DATA S1, S2, S3; 
