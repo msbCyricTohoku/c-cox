@@ -9,4 +9,7 @@
 #define MAX_ITER 200 //max iteration for newtown raohson
 #define TOLERANCE 1e-16
 
+typedef struct {
+  double time[N];
+  int status[N];} DATA;
 
