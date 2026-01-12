@@ -20,8 +20,12 @@ typedef struct {
   int status[N];
 } DATA;
 
+typedef struct{
+  double betavals[COVNO];
+} DATA_RES;
 
-double Z[N][COVNO] //data matrix covars are const. at the moment
+
+double Z[N][COVNO]; //data matrix covars are const. at the moment
 
 void ccox(DATA *dat, DATA_RES *res){
   int covN = COVNO; //number of covrs
@@ -34,7 +38,7 @@ void ccox(DATA *dat, DATA_RES *res){
 }
 
 
-void U_I_Calc(DATA *data, double beta[covN], double U[covN], I[covN][covN]){
+void U_I_Calc(DATA *data, double beta[COVNO], double U[COVNO], I[COVNO][COVNO]){
 
   for(int i=0; i < covN; i++) U[i] = 0.0;
 
@@ -47,11 +51,12 @@ void U_I_Calc(DATA *data, double beta[covN], double U[covN], I[covN][covN]){
   double TiE1[N]; //time at event 1 (so called occured)
   int E1 =0; //occured status (event =1)
 
-  for (int i=0; i < N; i++){
-    if(dat->status[i] == 1){
-      int E1_here = 0;
-      for (int j=0; j < E1; j++){
-	
+ for (int i=0; i < N; i++){
+  if(dat->status[i] == 1){
+   int E1_here = 0;
+   for (int j=0; j < E1; j++){
+     if(TiE1[j] == data->time[j]) E1_here = 1;
+     
       }
     }
   }
