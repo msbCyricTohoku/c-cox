@@ -33,6 +33,12 @@ void ccox(DATA *dat, DATA_RES *res){
   
 }
 
+
+void U_I_Calc(){
+  
+}
+
+
 int main(){
 
 double T1[] = {};
