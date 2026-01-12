@@ -9,7 +9,7 @@
 #include <gsl/gsl_blas.h>
 
 //for now we hard code no. of subs
-#define N 36 //just like Lin's paper
+#define N 36 //just like Lin's paper -- no. of subjects
 #define COVNO 2 //number of covariates
 #define TK 3 //number of time starta
 #define MAX_ITER 200 //max iteration for newtown raohson
@@ -34,8 +34,27 @@ void ccox(DATA *dat, DATA_RES *res){
 }
 
 
-void U_I_Calc(){
+void U_I_Calc(DATA *data, double beta[covN], double U[covN], I[covN][covN]){
+
+  for(int i=0; i < covN; i++) U[i] = 0.0;
+
+  for(int i=0; i < covN; i++){
+    for(int j=0; j < covN; j++){
+      I[i][j] = 0.0;
+    }
+  }
+
+  double TiE1[N]; //time at event 1 (so called occured)
+  int E1 =0; //occured status (event =1)
+
+  for (int i=0; i < N; i++){
+    if(dat->status[i] == 1){
+      int E1_here = 0;
+    }
+  }
   
+
+
 }
 
 
