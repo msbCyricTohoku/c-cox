@@ -55,12 +55,31 @@ void U_I_Calc(DATA *data, double beta[COVNO], double U[COVNO], I[COVNO][COVNO]){
   if(dat->status[i] == 1){
    int E1_here = 0;
    for (int j=0; j < E1; j++){
-     if(TiE1[j] == data->time[j]) E1_here = 1;
-     
-      }
+     if(TiE1[j] == data->time[i]) E1_here = 1;
+   }
+    if(!E1_here) TiE1[E1++] = data->time[i]; 
     }
   }
 
+ //main loop for U and I calcs
+ for (int m=0; m < E1; m++) {
+   double t = TiE1[m];
+   double sum_ekb = 0.0;
+   double s1[COVNO];
+
+   for (int i=0; i<COVNO;i++) s1[i] = 0.0;
+
+   double info_mat[COVNO][COVNO];
+
+   for (int i=0; i < COVNO; i++){
+     for (int j= 0; j < COVNO; j++){
+       info_mat[i][j] = 0.0;
+     }
+   }
+
+   int event_no = 0;
+
+ }
 
   
 
