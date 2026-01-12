@@ -1,3 +1,5 @@
+//massive parallel cox (marginal) in c
+//by msb
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +25,11 @@ double Z[N][CONVO] //data matrix covars are const. at the moment
 
 void ccox(DATA *dat, DATA_RES *res){
   int covN = COVNO; //number of covrs
+  gsl_vector *beta = gsl_vector_alloc(covN);
+  gsl_vector *U = gsl_vector_alloc(covN);
+  gsl_vector *delta = gsl_vector_alloc(covN);
+  gsl_matrix *I = gsl_matrix_alloc(covN, covN);
+    
   
 }
 
