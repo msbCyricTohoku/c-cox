@@ -33,7 +33,20 @@ void ccox(DATA *dat, DATA_RES *res){
   gsl_vector *U = gsl_vector_alloc(covN);
   gsl_vector *delta = gsl_vector_alloc(covN);
   gsl_matrix *I = gsl_matrix_alloc(covN, covN);
-    
+
+  for (int iter = 0; iter < MAX_ITER; iter++){
+    double U_arr[COVNO];
+      double I_arr[COVNO][COVNO];
+      U_I_Calc(dat, beta->data, U_arr,I_arr);
+
+      for(int i=0; i < covN; i++){
+	gsl_vector_set(U, i, U_arr[i]);
+	for(int j=0;j<covN;j++) gsl_matrix_set(I, i,j, I_arr[i][j]);  }
+
+      gsl_linalg_LU_solve(const gsl_matrix *LU, const gsl_permutation *p, const gsl_vector *b, gsl_vector *x)
+      
+      
+  }
   
 }
 
