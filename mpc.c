@@ -33,6 +33,7 @@ void ccox(DATA *dat, DATA_RES *res){
   gsl_vector *U = gsl_vector_alloc(covN);
   gsl_vector *delta = gsl_vector_alloc(covN);
   gsl_matrix *I = gsl_matrix_alloc(covN, covN);
+  gsl_permutation *prmute = gsl_permutation_alloc(covN); 
 
   for (int iter = 0; iter < MAX_ITER; iter++){
     double U_arr[COVNO];
@@ -42,6 +43,14 @@ void ccox(DATA *dat, DATA_RES *res){
       for(int i=0; i < covN; i++){
 	gsl_vector_set(U, i, U_arr[i]);
 	for(int j=0;j<covN;j++) gsl_matrix_set(I, i,j, I_arr[i][j]);  }
+
+      int signval;
+
+      gsl_matrix *I_copy = gsl_matrix_alloc(covN, covN);
+      gsl_matrix_memcpy(I_copy, I); ///copy of the info matrix for beta and delta calc
+      gsl_linalg_LU_decomp(I_copy, prmute, signval);
+      gsl_linalg_LU_solve(I_copy, prmute, U, delta);
+      gsl_matrix_free(I_copy);
 
       gsl_linalg_LU_solve(const gsl_matrix *LU, const gsl_permutation *p, const gsl_vector *b, gsl_vector *x)
       
