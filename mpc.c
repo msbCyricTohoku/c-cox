@@ -13,8 +13,8 @@
 #define N 432 //just like Lin's paper -- no. of subjects
 #define COVNO 2 //number of covariates
 //#define TK 3 //number of time starta
-#define MAX_ITER 100 //max iteration for newtown raohson
-#define TOLERANCE 1e-16
+#define MAX_ITER 200 //max iteration for newtown raohson
+#define TOLERANCE 1e-15
 
 typedef struct {
   double time[N];
@@ -121,6 +121,7 @@ void ccox(DATA *dat, DATA_RES *res){
   for (int iter = 0; iter < MAX_ITER; iter++){
     double U_arr[COVNO];
       double I_arr[COVNO][COVNO];
+      
       U_I_Calc(dat, beta->data, U_arr,I_arr);
 
       for(int i=0; i < covN; i++){
@@ -130,16 +131,17 @@ void ccox(DATA *dat, DATA_RES *res){
       int signval;
 
       gsl_matrix *I_copy = gsl_matrix_alloc(covN, covN);
+
       gsl_matrix_memcpy(I_copy, I); ///copy of the info matrix for beta and delta calc
       gsl_linalg_LU_decomp(I_copy, prmute, &signval);
       gsl_linalg_LU_solve(I_copy, prmute, U, delta);
       gsl_matrix_free(I_copy);
 
       gsl_vector_add(beta, delta); //here beta = beta+delta
-
+     
+      //printf("abs sum value %d %e\n",iter, gsl_blas_dasum(delta));
       if (gsl_blas_dasum(delta) < TOLERANCE) break; //gsl dasum absolute sum
 
-      
   }
 
   int s;
@@ -166,11 +168,11 @@ void ccox(DATA *dat, DATA_RES *res){
 
 //main prog
 int main() {
-    FILE *file = fopen("rossi.csv", "r");
-    if (!file) {
+
+  FILE *file = fopen("rossi.csv", "r");
+   if (!file) {
         perror("Error opening file");
-        return 1;
-    }
+        return 1;}
 
     DATA S1;
     DATA_RES result;
@@ -182,17 +184,24 @@ int main() {
         return 1;
     }
 
+
     int i = 0;
-    while (fgets(line, sizeof(line), file) && i < N) {
-        int count = sscanf(line, "%lf,%d,%lf,%lf", 
-                           &S1.time[i], 
-                           &S1.status[i], 
-                           &Z[i][0],  // fin
-                           &Z[i][1]); // age
-        i++;
+    int count;
+    while(fgets(line, sizeof(line), file) && i < N){
+      count = sscanf(line,"%lf,%d,%lf,%lf",
+			 &S1.time[i],
+			 &S1.status[i],
+			 &Z[i][0], // fin
+			 &Z[i][1]); // age
+      
+      i++;
     }
+    
     fclose(file);
 
+    //  printf("line count, %d ",i);
+    //printf("line count, %d ",count);
+  
   ccox(&S1, &result);
 
 printf("\n%-10s %-10s %-10s %-10s %-10s %-20s\n", "Variable", "Coef", "SE", "p-val", "HR", "95% CI");
