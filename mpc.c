@@ -52,10 +52,14 @@ void ccox(DATA *dat, DATA_RES *res){
       gsl_linalg_LU_solve(I_copy, prmute, U, delta);
       gsl_matrix_free(I_copy);
 
-      gsl_linalg_LU_solve(const gsl_matrix *LU, const gsl_permutation *p, const gsl_vector *b, gsl_vector *x)
-      
+      gsl_vector_add(beta, delta); //here beta = beta+delta
+
+      if (gsl_blas_dasum(delta) < TOLERANCE) break; //gsl dasum absolute sum
+
       
   }
+
+  
   
 }
 
