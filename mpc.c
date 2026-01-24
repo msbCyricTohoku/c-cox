@@ -13,8 +13,8 @@
 //#define N 432 //just like Lin's paper -- no. of subjects
 //#define COVNO 2 //number of covariates
 //#define TK 3 //number of time starta
-#define MAX_ITER 200 //max iteration for newtown raohson
-#define TOLERANCE 1e-15
+//#define MAX_ITER 200 //max iteration for newtown raohson
+//#define TOLERANCE 1e-15
 
 //int N;
 //int COVNO;
@@ -122,7 +122,7 @@ void U_I_Calc(DATA *data, int N,int COVNO,double beta[COVNO], double U[COVNO], d
 
 
 
-void ccox(DATA *dat, DATA_RES *res, int N, int COVNO, double **Z){
+void ccox(DATA *dat, DATA_RES *res, int N, int COVNO, double **Z, int MAX_ITER, double TOLERANCE){
   int covN = COVNO; //number of covrs
   gsl_vector *beta = gsl_vector_calloc(covN);
   gsl_vector *U = gsl_vector_alloc(covN);
@@ -192,6 +192,8 @@ int main(int argc, char *argv[]) {
     int N = 0; 
     int COVNO = 0;
     char cov_line[512];
+    int MAX_ITER = 0;
+    double TOLERANCE = 0.0;
     
     FILE *config = fopen(argv[1], "r");
     if (!config) {
@@ -199,7 +201,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (fscanf(config, "file=%s\nn=%d\ncovno=%d\ncovariates=%s", csv_file, &N, &COVNO, cov_line) != 4) {
+    if (fscanf(config, "MAX_ITER=%d\nTOLERANCE=%le\nfile=%s\nn=%d\ncovno=%d\ncovariates=%s", &MAX_ITER, &TOLERANCE,csv_file, &N, &COVNO, cov_line) != 6) {
         fprintf(stderr, "Error: Config file format incorrect.\n");
         fclose(config);
         return 1;
@@ -308,7 +310,7 @@ int main(int argc, char *argv[]) {
     fclose(file);
 
     //call ccox
-    ccox(&S1, &result, N, COVNO, Z);
+    ccox(&S1, &result, N, COVNO, Z, MAX_ITER, TOLERANCE);
 
     printf("\n%-10s %-10s %-10s %-10s %-10s %-20s\n", "Variable", "Coef", "SE", "p-val", "HR", "95% CI");
     printf("------------------------------------------------------------------------------------\n");
