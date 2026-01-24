@@ -1,0 +1,4 @@
+file=rossi.csv
+n=432
+covno=2
+covariates=fin,age
