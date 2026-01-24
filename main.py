@@ -1,14 +1,15 @@
 import pandas as pd
 import numpy as np
 from lifelines import CoxPHFitter
-from lifelines.datasets import load_rossi
 from scipy.stats import norm
 
-rossi = load_rossi()
-df = rossi[['week', 'arrest', 'fin', 'age']]
+file_path = 'dummy_data.csv'
+df = pd.read_csv(file_path)
 
-cph = CoxPHFitter() 
-cph.fit(df, duration_col='week', event_col='arrest')
+df_model = df[['week', 'arrest', 'fin', 'age']]
+
+cph = CoxPHFitter()
+cph.fit(df_model, duration_col='week', event_col='arrest')
 
 summary = cph.summary
 
@@ -20,11 +21,9 @@ for cov in ['fin', 'age']:
     se = np.sqrt(cph.variance_matrix_.loc[cov, cov])
     hr = np.exp(beta)
     
-    # Wald Test
     z_stat = beta / se
     p_val = 2 * (1 - norm.cdf(abs(z_stat)))
     
-    # 95% CI
     ci_low = np.exp(beta - 1.96 * se)
     ci_high = np.exp(beta + 1.96 * se)
     

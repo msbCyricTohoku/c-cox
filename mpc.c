@@ -45,7 +45,10 @@ void U_I_Calc(DATA *data, int N,int COVNO,double beta[COVNO], double U[COVNO], d
     }
   }
 
-  double TiE1[N]; //time at event 1 (so called occured)
+  //noticed stack overflow when running datasets larger than 1mil
+  //double TiE1[N]; //time at event 1 (so called occured)
+  double *TiE1 = (double *)malloc(N*sizeof(double));
+  
   int E1 = 0; //occured status (event = 1)
 
   for (int i=0; i < N; i++){
@@ -117,6 +120,7 @@ void U_I_Calc(DATA *data, int N,int COVNO,double beta[COVNO], double U[COVNO], d
     }
   }
 
+  free(TiE1);
 
 }
 
@@ -188,10 +192,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    char csv_file[256];
+    char csv_file[256*8];
     int N = 0; 
     int COVNO = 0;
-    char cov_line[512];
+    char cov_line[512*4];
     int MAX_ITER = 0;
     double TOLERANCE = 0.0;
     
@@ -232,7 +236,7 @@ int main(int argc, char *argv[]) {
     line[strcspn(line, "\r\n")] = 0;
 
     
-    char *header_cols[100]; 
+    char *header_cols[10000]; 
     int total_csv_cols = 0;
     char *hdr_token = strtok(line, ",");
     while (hdr_token != NULL && total_csv_cols < 100) {

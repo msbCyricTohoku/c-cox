@@ -1,6 +1,6 @@
-MAX_ITER=200
-TOLERANCE=1E-15
-file=rossi.csv
-n=432
+MAX_ITER=100
+TOLERANCE=1E-7
+file=dummy_data.csv
+n=5000000
 covno=2
 covariates=fin,age
