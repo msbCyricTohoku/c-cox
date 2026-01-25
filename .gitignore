@@ -13,7 +13,6 @@ build/
 dist/
 *.egg-info/
 .eggs/
-*.csv
 jmir/
 *.png
 *.txt
