@@ -1,6 +1,6 @@
 MAX_ITER=100
 TOLERANCE=1E-7
 file=dummy_data.csv
-n=5000000
+n=10000000
 covno=2
 covariates=fin,age

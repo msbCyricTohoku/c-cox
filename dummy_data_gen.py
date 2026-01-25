@@ -2,7 +2,6 @@ import csv
 import random
 
 def generate_recidivism_data(filename, num_rows):
-    # Define headers
     headers = ['week', 'arrest', 'fin', 'age', 'race', 'wexp', 'mar', 'paro', 'prio']
     
     print(f"generating...")
@@ -26,8 +25,7 @@ def generate_recidivism_data(filename, num_rows):
 
     print(f"Success! Data saved to {filename}")
 
-# Configuration
 output_file = 'dummy_data.csv'
-total_rows = 5_000_000
+total_rows = 10_000_000
 
 generate_recidivism_data(output_file, total_rows)
