@@ -27,7 +27,7 @@ $$\lambda(t | X) = \lambda_0(t) \exp\left(\sum_{i=1}^{p} \beta_i X_i\right)$$
 
 ---
 
-## Installation
+## Installation:
 
 To compile the library, use any standard C compiler (e.g., GCC or Clang):
 
@@ -35,3 +35,16 @@ To compile the library, use any standard C compiler (e.g., GCC or Clang):
 sudo apt update && sudo apt install -y libgsl-dev
 make
 ./cox_model config.dat
+```
+---
+
+## Config file:
+
+```bash
+MAX_ITER= define max Newton-Raphson iterations (default = 100) 
+TOLERANCE=define tolerance (default = 1E-7)
+file= define path to your csv file (example datasets/data.csv)
+n= number of rows in your csv file (example 10000000)
+covno= number of covariates (example 2)
+covariates= name of covariates separated by commas (example fin,age)
+```
