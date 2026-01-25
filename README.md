@@ -12,9 +12,9 @@ $$\lambda(t | X) = \lambda_0(t) \exp\left(\sum_{i=1}^{p} \beta_i X_i\right)$$
 
 * **High Performance:** Optimized Newton-Raphson solver for rapid convergence.
 * **Efficient Risk Set Calculation:** Reduced computational complexity for partial likelihood gradients.
-* **Minimal Dependencies:** Written in standard C with no requirement for heavy external math libraries.
-* **Tie Handling:** Supports standard methods including Breslow and Efron approximations.
-* **Portability:** Easily integrated into existing C/C++ projects or wrapped for Python/R/Julia via FFI.
+* **Minimal Dependencies:** Written in standard C with GSL libs only.
+* **Tie Handling:** Supports standard methods including Breslow.
+* **Portability:** Easily integrated into existing C/C++ projects.
 
 ---
 
