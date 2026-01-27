@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O3 -march=native -flto -ffast-math -DHAVE_INLINE
+CFLAGS = -O3 -fopenmp -march=native -flto -ffast-math -DHAVE_INLINE
 LDFLAGS = -lgsl -lgslcblas -lm
 
 TARGET = cox_model

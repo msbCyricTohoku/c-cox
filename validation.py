@@ -3,7 +3,7 @@ import numpy as np
 from lifelines import CoxPHFitter
 from scipy.stats import norm
 
-file_path = 'dummy_data.csv'
+file_path = '../dummy_data.csv'
 df = pd.read_csv(file_path)
 
 df_model = df[['week', 'arrest', 'fin', 'age']]

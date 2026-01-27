@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <omp.h>
 
 // for now we hard code no. of subs
 // #define N 432 //just like Lin's paper -- no. of subjects
@@ -63,6 +64,20 @@ void U_I_Calc(DATA *data, int N, int COVNO, double beta[COVNO], double U[COVNO],
     }
   }
 
+#pragma omp parallel
+  {
+
+  double core_U[COVNO];
+  double core_I[COVNO][COVNO];
+
+  for(int i=0; i < COVNO; i++){
+    core_U[i] = 0.0;
+    for(int j=0; j < COVNO; j++){
+      core_I[i][j] = 0.0;
+    }
+  }
+
+#pragma omp for
   // main loop for U and I calcs
   for (int m = 0; m < E1; m++) {
     double t = TiE1[m];
@@ -109,17 +124,28 @@ void U_I_Calc(DATA *data, int N, int COVNO, double beta[COVNO], double U[COVNO],
     for (int i = 0; i < N; i++) {
       if (data->time[i] == t && data->status[i] == 1) {
         for (int k = 0; k < COVNO; k++)
-          U[k] += (Z[i][k] - z_bar[k]);
+          core_U[k] += (Z[i][k] - z_bar[k]);
       }
     }
 
     // update I
     for (int k = 0; k < COVNO; k++) {
       for (int l = 0; l < COVNO; l++) {
-        I[k][l] += event_no * (info_mat[k][l] / sum_ekb - z_bar[k] * z_bar[l]);
+        core_I[k][l] += event_no * (info_mat[k][l] / sum_ekb - z_bar[k] * z_bar[l]);
         // I[k][l] += (info_mat[k][l]/sum_ekb - z_bar[k]*z_bar[l]);
       }
     }
+  }
+
+#pragma omp critical
+  {
+    for (int k = 0; k < COVNO; k++) {
+       U[k] += core_U[k];
+     for (int l = 0; l < COVNO; l++) {
+       I[k][l] += core_I[k][l];
+                }
+            }
+        }
   }
 
   free(TiE1);
