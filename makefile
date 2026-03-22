@@ -2,8 +2,8 @@ CC = gcc
 CFLAGS = -O3 -fopenmp -march=native -flto -ffast-math -DHAVE_INLINE
 LDFLAGS = -lgsl -lgslcblas -lm
 
-TARGET = cox_model
-SRC = ccox.c
+TARGET = ccox
+SRC = main.c ccox_math.c
 
 $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS)

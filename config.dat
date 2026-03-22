@@ -1,6 +1,13 @@
 MAX_ITER=100
 TOLERANCE=1E-7
-file=../dummy_data.csv
-n=10000000
-covno=2
-covariates=fin,age
+file=dummy_data.csv
+n=100000
+covno=3
+covariates=treatment,age,bmi
+start_col=start
+stop_col=stop
+status_col=status
+cluster_col=patient_id
+event_code=1
+rob_se=1
+cif_times=1.0,5.0,10.0,20.0
