@@ -8,7 +8,6 @@ Recently updated, C-Cox now fully supports advanced clinical trial and Electroni
 
 ## Project Files
 
-* `ccox.c`: Legacy source (does not support time-varying covariates).
 * `main.c`, `ccox_math.c`, `ccox.h`: Current source supporting time-varying covariates, clustered longitudinal data, and competing risks.
 
 ---
