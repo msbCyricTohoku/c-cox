@@ -120,6 +120,8 @@ C-Cox is controlled entirely by a simple text configuration file. No hardcoding 
 
 `cif_times=1.0,5.0,10.0`       # Comma separated times to output Aalen-Johansen CIF absolute risk %
 
+`breslow=1`                    # Breslow = 1, or Breslow = 0 for Efron estimation.
+
 ---
 
 `Developed by msb -- 2026`
