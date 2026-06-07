@@ -29,9 +29,9 @@ typedef struct {
   double *robust_var;
 } DATA_RES;
 
-void U_I_Calc(DATA *data, int N, int COVNO, double beta[COVNO], double U[COVNO],double I[COVNO][COVNO], double **Z, double *TiE1, int E1, int event_code);
+void U_I_Calc(DATA *data, int N, int tie_handling, int COVNO, double beta[COVNO], double U[COVNO],double I[COVNO][COVNO], double **Z, double *TiE1, int E1, int event_code);
 
-void ccox(DATA *dat, DATA_RES *res, int N, int COVNO, double **Z, int MAX_ITER, double TOLERANCE, int event_code, int robust);
+void ccox(DATA *dat, DATA_RES *res, int N,int tie_handling, int COVNO, double **Z, int MAX_ITER, double TOLERANCE, int event_code, int robust);
 
 void compute_robust_variance(DATA *dat, DATA_RES *res, int N, int COVNO, double **Z, double *TiE1, int E1, int event_code);
 

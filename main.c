@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
   int robust = 0;
   double cif_times[100];
   int num_cif_times = 0;
+  int tie_handling = 1;
 
 
   /*-----------------------------------------------------------------------*/
@@ -97,6 +98,7 @@ int main(int argc, char *argv[]) {
 
   }
     }
+    else if (strcmp(key, "breslow") == 0) tie_handling = atoi(val);
   }
 
   fclose(config);
@@ -275,7 +277,7 @@ int main(int argc, char *argv[]) {
   result.robust_var = malloc(COVNO * COVNO * sizeof(double));
 
   /*---------------ccox call---------------*/
-  ccox(&S1, &result, N, COVNO, Z, MAX_ITER, TOLERANCE, event_code, robust);
+  ccox(&S1, &result, N, tie_handling,COVNO, Z, MAX_ITER, TOLERANCE, event_code, robust);
 
   printf("\n%-10s %-10s %-10s %-10s %-10s %-20s\n", "Variable", "Coef", robust ? "Rob_SE" : "SE",
          "p-val", "HR", "95% CI");

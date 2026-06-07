@@ -27,7 +27,7 @@ int cmp_double(const void *a, const void *b) {
 
 
 /*-----------------------U and I matrix calc------------------------------*/
-void U_I_Calc(DATA *data, int N, int COVNO, double beta[COVNO], double U[COVNO],
+void U_I_Calc(DATA *data, int N, int tie_handling,int COVNO, double beta[COVNO], double U[COVNO],
               double I[COVNO][COVNO], double **Z, double *TiE1, int E1, int event_code) {
 
   /*------------init U------------------*/
@@ -59,28 +59,33 @@ void U_I_Calc(DATA *data, int N, int COVNO, double beta[COVNO], double U[COVNO],
 
 #pragma omp for
   /*---------main loop for U and I calcs----------*/
-  for (int m = 0; m < E1; m++) {
+   for (int m = 0; m < E1; m++) {
 
     /*--------init params---------*/
     double t = TiE1[m];
     double sum_ekb = 0.0;
     double s1[COVNO];
     double info_mat[COVNO][COVNO];
+    double sum_tied_ekb = 0.0;
+    double s1_tied[COVNO]; // = {0.0};
+    double info_tied[COVNO][COVNO]; // = {{0.0}};
 
-    for (int i = 0; i < COVNO; i++)
-
+    for (int i = 0; i < COVNO; i++){
       s1[i] = 0.0;
+      s1_tied[i] = 0.0;
+    }
 
     for (int i = 0; i < COVNO; i++) {
-
       for (int j = 0; j < COVNO; j++) {
 
-	info_mat[i][j] = 0.0;
+        info_mat[i][j] = 0.0;
+	info_tied[i][j] = 0.0;
 
       }
   }
 
-    int event_no = 0;
+  int event_no = 0;
+
 
     /*-------------------------risk set sums------------------------------*/
     for (int i = 0; i < N; i++) {
@@ -102,40 +107,119 @@ void U_I_Calc(DATA *data, int N, int COVNO, double beta[COVNO], double U[COVNO],
 	    info_mat[k][l] += w * Z[i][k] * Z[i][l];
 
 	  }
-	}
+        }
+
+        if (data->stop[i] == t && data->status[i] == event_code) {
+
+          sum_tied_ekb += w;
+	  
+          for (int k = 0; k < COVNO; k++) {
+
+            s1_tied[k] += w * Z[i][k];
+
+            for (int l = 0; l < COVNO; l++) {
+
+              info_tied[k][l] += w * Z[i][k] * Z[i][l];
+            }
+          }
+        }
       }
 
       if (data->stop[i] == t && data->status[i] == event_code)
 	event_no++;
-  }
+    }
 
-    
-    if (sum_ekb > 0.0) {
+    //  int tie_handling = 1;
+
+    if(tie_handling == 1){
+
+      
+      /*---- Breslow -----*/
+        if (sum_ekb > 0.0) {
       double z_bar[COVNO];
-
-      for (int k = 0; k < COVNO; k++)
-	z_bar[k] = s1[k] / sum_ekb;
-
+     for (int k = 0; k < COVNO; k++)
+    	z_bar[k] = s1[k] / sum_ekb;
       /*-------------------------update U-------------------------------------*/
       for (int i = 0; i < N; i++) {
+    	if (data->stop[i] == t && data->status[i] == event_code) {
+    	  for (int k = 0; k < COVNO; k++)
+    	    core_U[k] += (Z[i][k] - z_bar[k]);
+    	}
+      }
+      //-------------------------update I-------------------------------------
+       for (int k = 0; k < COVNO; k++) {
+    	for (int l = 0; l < COVNO; l++) {
+    	  core_I[k][l] += event_no * (info_mat[k][l] / sum_ekb - z_bar[k] * z_bar[l]);
+      }
+     }
+     }
+    }
+    else {
+ 
 
-	if (data->stop[i] == t && data->status[i] == event_code) {
+     /* ------------ Efron method ------------ */
+    if (sum_ekb > 0.0 && event_no > 0) {
 
-	  for (int k = 0; k < COVNO; k++)
-	    core_U[k] += (Z[i][k] - z_bar[k]);
+      /* ----- weight average calc ----- */
+      for (int j = 0; j < event_no; j++) {
+	
+        double weight = (double)j / event_no;
+        
+       /*---- calculate the adjusted denominator for step j ------*/ 
+        double denom_j = sum_ekb - weight * sum_tied_ekb;
+        
+        for (int k = 0; k < COVNO; k++) {
+
+          double s1_j = s1[k] - weight * s1_tied[k];
+
+          core_U[k] -= (s1_j / denom_j);
+
 	}
       }
 
-      //-------------------------update I-------------------------------------
-      for (int k = 0; k < COVNO; k++) {
-	for (int l = 0; l < COVNO; l++) {
+      /* ---- adding raw covars ----- */
+      for (int i = 0; i < N; i++) {
+        if (data->stop[i] == t && data->status[i] == event_code) {
+          for (int k = 0; k < COVNO; k++)
+            core_U[k] += Z[i][k];
+        }
+      }
 
-	  core_I[k][l] += event_no * (info_mat[k][l] / sum_ekb - z_bar[k] * z_bar[l]);
+      /*--- updating info matrix ----- */
+      for (int j = 0; j < event_no; j++) {
+        double weight = (double)j / event_no;
+        
+       
+        double denom_j = sum_ekb - weight * sum_tied_ekb;
 
-     }
-   }
-      
-   }
+        double z_bar_j[COVNO];
+        
+        for (int k = 0; k < COVNO; k++) {
+
+          z_bar_j[k] = (s1[k] - weight * s1_tied[k]) / denom_j;
+        }
+	
+
+        for (int k = 0; k < COVNO; k++) {
+
+          double info_mat_j_k[COVNO]; /* this can be commented, need to check */
+
+          for (int l = 0; l < COVNO; l++) {
+
+            info_mat_j_k[l] = info_mat[k][l] - weight * info_tied[k][l];
+
+            core_I[k][l] += (info_mat_j_k[l] / denom_j - z_bar_j[k] * z_bar_j[l]);
+
+	  }
+        }
+      }
+    }
+
+    }
+
+     
+    
+    
   }
   /*---------------------------------------------------------------------------------*/
 
@@ -392,7 +476,7 @@ void compute_robust_variance(DATA *dat, DATA_RES *res, int N, int COVNO, double 
 
 
 /*-----------------------ccox main function called in main------------------------------*/
-void ccox(DATA *dat, DATA_RES *res, int N, int COVNO, double **Z, int MAX_ITER,
+void ccox(DATA *dat, DATA_RES *res, int N, int tie_handling, int COVNO, double **Z, int MAX_ITER,
           double TOLERANCE, int event_code, int robust) {
 
   int covN = COVNO; /*----number of covrs-----*/
@@ -455,7 +539,7 @@ void ccox(DATA *dat, DATA_RES *res, int N, int COVNO, double **Z, int MAX_ITER,
     double U_arr[COVNO]; /*---U matrix---*/
     double I_arr[COVNO][COVNO]; /*---inverse hessian, I mat---*/
 
-    U_I_Calc(dat, N, COVNO, beta->data, U_arr, I_arr, Z, TiE1, E1, event_code); /*---call U_I_Calc----*/
+    U_I_Calc(dat, N, tie_handling, COVNO, beta->data, U_arr, I_arr, Z, TiE1, E1, event_code); /*---call U_I_Calc----*/
 
     for (int i = 0; i < covN; i++) {
 
