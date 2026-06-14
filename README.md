@@ -1,4 +1,4 @@
-# C-Cox: High-Performance Cox Proportional Hazards Regression
+# C-Cox: High-Performance Cox Proportional Hazards Regression v2.0.0
 
 C-Cox is a lightweight, standalone C implementation of the Cox Proportional Hazards (PH) model. It is designed for high-performance survival analysis on massive datasets where memory efficiency and computational speed are critical.
 
@@ -8,7 +8,7 @@ Recently updated, C-Cox now fully supports advanced clinical trial and Electroni
 
 ## Project Files
 
-* `main.c`, `ccox_math.c`, `ccox.h`: Current source supporting time-varying covariates, clustered longitudinal data, and competing risks.
+* `main.c`, `ccox_math2.c`, `ccox2.h`: Current source supporting time-varying covariates, clustered longitudinal data, and competing risks.
 
 ---
 

@@ -3,7 +3,7 @@ CFLAGS = -O3 -fopenmp -march=native -flto -ffast-math -DHAVE_INLINE
 LDFLAGS = -lgsl -lgslcblas -lm
 
 TARGET = ccox
-SRC = main.c ccox_math.c
+SRC = main.c ccox_math2.c
 
 $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS)

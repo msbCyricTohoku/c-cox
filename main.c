@@ -8,7 +8,7 @@
  
  License:     Distributed under the GNU General Public License (GPL)
 ==============================================================================*/
-#include "ccox.h"
+#include "ccox2.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
   char *header_cols[10000];
   int total_csv_cols = 0;
   
-  /*--------simple strtok loop pattern-------*/
+  /*--------strtok loop-------*/
   char *hdr_token = strtok(line, ",");
 
   while (hdr_token != NULL && total_csv_cols < 10000) {
@@ -190,12 +190,14 @@ int main(int argc, char *argv[]) {
   S1.cluster = malloc(N * sizeof(int));
 
   /*--------2D array Z-----------*/
-  double **Z = malloc(N * sizeof(double *));
-  for (int i = 0; i < N; i++) {
+  //double **Z = malloc(N * sizeof(double *));
+  //for (int i = 0; i < N; i++) {
 
-    Z[i] = malloc(COVNO * sizeof(double));
+  // Z[i] = malloc(COVNO * sizeof(double));
+  //}
 
-  }
+  /*--------1D flat array Z for SIMD cache locality-----------*/
+  double *Z = malloc(N * COVNO * sizeof(double));
 
   int *raw_clusters = malloc(N * sizeof(int));
   int row_count = 0;
@@ -229,7 +231,8 @@ int main(int argc, char *argv[]) {
       for (int k = 0; k < COVNO; k++) {
 
 	if (current_col == col_indices[k]) {
-	  Z[row_count][k] = atof(val_token);
+          //Z[row_count][k] = atof(val_token);
+	  Z[row_count * COVNO + k] = atof(val_token);
        }
       }
       
@@ -277,11 +280,33 @@ int main(int argc, char *argv[]) {
   result.robust_var = malloc(COVNO * COVNO * sizeof(double));
 
   /*---------------ccox call---------------*/
-  ccox(&S1, &result, N, tie_handling,COVNO, Z, MAX_ITER, TOLERANCE, event_code, robust);
+  ccox(&S1, &result, N, tie_handling, COVNO, Z, MAX_ITER, TOLERANCE, event_code, robust);
 
-  printf("\n%-10s %-10s %-10s %-10s %-10s %-20s\n", "Variable", "Coef", robust ? "Rob_SE" : "SE",
-         "p-val", "HR", "95% CI");
-  printf("------------------------------------------------------------------------------------\n");
+
+  int max_name_len = 10;
+
+  for (int k = 0; k < COVNO; k++) {
+    int len = strlen(target_names[k]);
+    if (len > max_name_len) {
+
+      max_name_len = len;
+  }
+  }
+
+  int col_width = max_name_len + 2;
+
+  printf("\n%-*s %-10s %-10s %-10s %-10s %-20s\n", 
+         col_width, "Variable", "Coef", robust ? "Rob_SE" : "SE", "p-val", "HR", "95% CI");
+
+  //printf("\n%-10s %-10s %-10s %-10s %-10s %-20s\n", "Variable", "Coef", robust ? "Rob_SE" : "SE", "p-val", "HR", "95% CI");
+  printf("---------------------------------------------------------------------"
+         "---------------\n");
+
+  int total_dash = col_width + 10 + 10 + 10 + 10 + 20;
+  
+  for(int i = 0; i < total_dash; i++) printf("-");
+
+  printf("\n");
 
   double z_crit = 1.960;
 
@@ -299,8 +324,11 @@ int main(int argc, char *argv[]) {
     double ci_low = exp(beta - z_crit * se);
     double ci_high = exp(beta + z_crit * se);
 
-    printf("%-10s %-10.4f %-10.4f %-10.4f %-10.4f (%0.4f, %0.4f)\n",
-           target_names[k], beta, se, p_val, hr, ci_low, ci_high);
+    //    printf("%-10s %-10.4f %-10.4f %-10.4f %-10.4f (%0.4f,
+    //    %0.4f)\n",target_names[k], beta, se, p_val, hr, ci_low, ci_high);
+
+    printf("%-*s %-10.4f %-10.4f %-10.4f %-10.4f (%0.4f, %0.4f)\n",
+           col_width, target_names[k], beta, se, p_val, hr, ci_low, ci_high);
   }
   
   printf("------------------------------------------------------------------------------------\n");
@@ -321,10 +349,11 @@ int main(int argc, char *argv[]) {
   free(S1.stop);
   free(S1.status);
   free(S1.cluster);
-  for (int i = 0; i < N; i++) {
-    free(Z[i]);
-  }
+  // for (int i = 0; i < N; i++) {
+  //   free(Z[i]);
+  //  }
   free(Z);
+  //free(Z);
   free(result.betavals);
   free(result.inv_hessian);
   free(result.robust_var);
