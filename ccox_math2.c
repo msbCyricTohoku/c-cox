@@ -607,6 +607,34 @@ void ccox(DATA *dat, DATA_RES *res, int N, int tie_handling, int COVNO, double *
   qsort(event_items, num_events, sizeof(ccox_SortItem), ccox_cmp_desc);
 
 
+     /*----------------------scaling bug fix starts---------------------------*/
+  /*----I have found issue when continuous variables and binary are mixed----*/
+  /*----issue was due to scaling, as exp() values are calculated, large values
+   * cause issues----*/
+  /*----here I added scaling, I read that python and R does the same-----*/
+  double *means = (double *)calloc(COVNO, sizeof(double));
+  double *stds = (double *)calloc(COVNO, sizeof(double));
+
+  for (int k = 0; k < COVNO; k++) {
+    for (int i = 0; i < N; i++) means[k] += Z[i * COVNO + k];
+    means[k] /= N;
+
+    for (int i = 0; i < N; i++) stds[k] += pow(Z[i * COVNO + k] - means[k], 2);
+    stds[k] = sqrt(stds[k] / (N > 1 ? (N - 1) : 1));
+
+    /*----prevent division by zero-------*/
+    if (stds[k] < 1e-8) stds[k] = 1.0; 
+
+    /*----standardization to Z----*/
+    for (int i = 0; i < N; i++) {
+      Z[i * COVNO + k] = (Z[i * COVNO + k] - means[k]) / stds[k];
+    }
+  }
+
+  /*----------------------scaling bug fix end---------------------------*/
+
+  
+
   for (int iter = 0; iter < MAX_ITER; iter++) {
 
     double U_arr[COVNO]; /*---U matrix---*/
@@ -658,6 +686,31 @@ void ccox(DATA *dat, DATA_RES *res, int N, int tie_handling, int COVNO, double *
   if (robust) {
     compute_robust_variance(dat, res, N, COVNO, Z, TiE1, E1, event_code);
   }
+
+
+      /*----------------------scaling bug fix starts---------------------------*/
+  /*-------here I un-scale for beta vals------*/
+    for (int k = 0; k < covN; k++) {
+    /*----unscale beta directly on the output struct----*/
+    res->betavals[k] /= stds[k];
+
+    for (int l = 0; l < covN; l++) {
+      /*---unscale inverse Hessian mat----*/
+      res->inv_hessian[k * covN + l] /= (stds[k] * stds[l]);
+      
+      /*-----unscale the robust variance mat----*/
+      if (robust) {
+        res->robust_var[k * covN + l] /= (stds[k] * stds[l]);
+      }
+    }
+
+    /*----restore Z-----*/
+    for (int i = 0; i < N; i++) {
+      Z[i * COVNO + k] = (Z[i * COVNO + k] * stds[k]) + means[k];
+    }
+  }
+  free(means);
+  free(stds);
 
   /*--------free and gls free-------*/
   free(stop_items); 
