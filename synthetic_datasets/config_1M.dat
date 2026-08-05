@@ -1,0 +1,14 @@
+MAX_ITER=100
+TOLERANCE=1E-7
+file=survival_data_1M_imputed.csv
+n=1000000
+covno=16
+covariates=age,sex_male,income_bracket,smoking_status,activity_days,bmi,sbp,heart_rate,ldl,hdl,hba1c,egfr,crp,hx_mi,hx_stroke,fam_hx_cvd
+start_col=
+stop_col=time_years
+status_col=event
+event_code=1
+rob_se=1
+breslow=0
+cluster_col=
+cif_times=
